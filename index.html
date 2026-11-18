@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도전! 두뇌왕 – 3종 미니게임 챌린지</title>
+    <!-- 구글 폰트: Jua 및 Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- 컨페티(색종이) 효과 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary-navy: #0f172a;
+            --accent-violet: #4c1d95;
+            --btn-orange: #f97316;
+            --btn-orange-hover: #ea580c;
+            --accent-yellow: #facc15;
+            --card-bg: #1e1b4b;
+            --text-light: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Jua', 'Poppins', sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-navy) 0%, var(--accent-violet) 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 10px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: rgba(30, 27, 75, 0.85);
+            backdrop-filter: blur(12px);
+            border: 3px solid rgba(250, 204, 21, 0.3);
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 2px 10px rgba(255, 255, 255, 0.1);
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--accent-yellow);
+            text-shadow: 3px 3px 0px #b45309, 0 0 20px rgba(250, 204, 21, 0.4);
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 1.35rem;
+            color: #cbd5e1;
+            margin-bottom: 24px;
+        }
+
+        /* 3D 아케이드 카드 선택 화면 */
+        .mode-selection {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .game-card-3d {
+            background: linear-gradient(145deg, #312e81, #1e1b4b);
+            border: 2px solid rgba(250, 204, 21, 0.4);
+            border-radius: 20px;
+            padding: 16px 8px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            box-shadow: 0 8px 0 #171235, 0 10px 20px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 130px;
+        }
+
+        .game-card-3d:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-yellow);
+            box-shadow: 0 12px 0 #171235, 0 15px 25px rgba(0,0,0,0.5);
+        }
+
+        .game-card-3d:active {
+            transform: translateY(4px);
+            box-shadow: 0 4px 0 #171235, 0 5px 10px rgba(0,0,0,0.4);
+        }
+
+        .game-card-3d .icon {
+            font-size: 2.2rem;
+            margin-bottom: 6px;
+        }
+
+        .game-card-3d .title {
+            font-size: 1.15rem;
+            color: var(--text-light);
+        }
+
+        /* 입력 및 버튼 스타일 */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            max-width: 380px;
+            padding: 16px;
+            font-size: 1.3rem;
+            border-radius: 16px;
+            border: 3px solid #6366f1;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+            outline: none;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.3);
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-yellow);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--btn-orange), #ea580c);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 18px 36px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 0 #9a3412, 0 10px 25px rgba(249, 115, 22, 0.4);
+            transition: all 0.1s ease;
+            display: inline-block;
+            margin: 8px;
+            min-width: 220px;
+            min-height: 64px;
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #9a3412, 0 4px 10px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #475569, #334155);
+            box-shadow: 0 8px 0 #1e293b, 0 10px 25px rgba(71, 85, 105, 0.4);
+        }
+        .btn-secondary:active {
+            box-shadow: 0 2px 0 #1e293b, 0 4px 10px rgba(71, 85, 105, 0.4);
+        }
+
+        .btn-audio {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #312e81;
+            border: 2px solid var(--accent-yellow);
+            color: var(--accent-yellow);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #1e1b4b;
+        }
+        .btn-audio:active { transform: translateY(2px); box-shadow: 0 2px 0 #1e1b4b; }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* 게임 헤더 바 */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 12px 20px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            border: 2px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* 게임 1: 카드 뒤집기 스타일 */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            max-width: 480px;
+            margin: 0 auto 20px auto;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: #312e81;
+            border: 3px solid #818cf8;
+            border-radius: 16px;
+            font-size: 2.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+            box-shadow: 0 6px 0 #1e1b4b;
+        }
+
+        .memory-card.flipped {
+            background: #ffffff;
+            transform: rotateY(180deg);
+            box-shadow: 0 2px 0 #cbd5e1;
+        }
+
+        .memory-card:active {
+            transform: scale(0.95);
+        }
+
+        /* 게임 2: 번개 순발력 테스트 */
+        .reflex-box {
+            width: 100%;
+            height: 260px;
+            background: #334155;
+            border-radius: 24px;
+            border: 4px dashed #64748b;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background 0.2s, border-color 0.2s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .reflex-box.ready {
+            background: #b91c1c;
+            border-color: #ef4444;
+        }
+
+        .reflex-box.go {
+            background: #15803d;
+            border-color: #4ade80;
+            animation: pulseBox 0.5s infinite alternate;
+        }
+
+        @keyframes pulseBox {
+            from { transform: scale(1); }
+            to { transform: scale(1.02); }
+        }
+
+        .reflex-box h2 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        /* 게임 3: 다른 그림 찾기 */
+        .find-grid {
+            display: grid;
+            gap: 10px;
+            max-width: 420px;
+            margin: 0 auto 20px auto;
+        }
+
+        .find-item {
+            background: #312e81;
+            border: 3px solid #6366f1;
+            border-radius: 16px;
+            font-size: 2.4rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            aspect-ratio: 1;
+            box-shadow: 0 5px 0 #1e1b4b;
+            transition: transform 0.1s;
+        }
+
+        .find-item:active {
+            transform: scale(0.92);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 14px;
+            background: #1e293b;
+            border-radius: 7px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 2px solid #475569;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 100%;
+            background: var(--accent-yellow);
+            transition: width 1s linear;
+        }
+
+        /* 결과 화면 및 그래프 */
+        .result-trophy {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            animation: bounceTrophy 1s infinite alternate;
+        }
+
+        @keyframes bounceTrophy {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        .score-graph-container {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            text-align: left;
+        }
+
+        .graph-row {
+            margin-bottom: 12px;
+        }
+
+        .graph-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .graph-bar-bg {
+            width: 100%;
+            height: 18px;
+            background: #1e293b;
+            border-radius: 9px;
+            overflow: hidden;
+            border: 1px solid #475569;
+        }
+
+        .graph-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            border-radius: 9px;
+            width: 0%;
+            transition: width 1s ease-out;
+        }
+
+        .total-score-badge {
+            font-size: 1.8rem;
+            color: var(--accent-yellow);
+            background: rgba(250, 204, 21, 0.1);
+            padding: 12px;
+            border-radius: 14px;
+            border: 2px dashed var(--accent-yellow);
+            margin-bottom: 20px;
+        }
+
+        /* 순위표 테이블 */
+        .ranking-table {
+            width: 100%;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+            font-size: 1.1rem;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid #475569;
+        }
+
+        .ranking-table th, .ranking-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .ranking-table th {
+            background: #312e81;
+            color: var(--accent-yellow);
+        }
+
+        .disclaimer {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-top: 15px;
+        }
+
+        /* 반응형 스타일 */
+        @media(max-width: 480px) {
+            h1 { font-size: 2.2rem; }
+            .mode-selection { grid-template-columns: 1fr; }
+            .container { padding: 16px; }
+            .btn { width: 100%; min-width: unset; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-audio" id="audioToggleBtn" onclick="toggleAudio()">🔊 효과음: 켜짐</button>
+
+    <div class="container">
+        
+        <!-- 1. 시작 화면 -->
+        <div id="screen-start" class="screen active">
+            <h1>도전! 두뇌왕</h1>
+            <div class="subtitle">기억력·순발력·집중력 챌린지</div>
+
+            <!-- 3D 느낌의 게임 미리보기 카드 -->
+            <div class="mode-selection">
+                <div class="game-card-3d">
+                    <div class="icon">🃏</div>
+                    <div class="title">기억력 카드</div>
+                </div>
+                <div class="game-card-3d">
+                    <div class="icon">⚡</div>
+                    <div class="title">번개 순발력</div>
+                </div>
+                <div class="game-card-3d">
+                    <div class="icon">🔍</div>
+                    <div class="title">다른 그림 찾기</div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="playerName" placeholder="이름 또는 별명을 입력하세요" maxlength="10">
+            </div>
+
+            <button class="btn" onclick="startGameSequence()">게임 시작</button>
+            
+            <div style="margin-top: 25px;">
+                <button class="btn btn-secondary" style="font-size: 1.1rem; padding: 12px 24px; min-width: auto; min-height: 44px;" onclick="showRankingScreen()">🏆 명예의 전당 (순위표)</button>
+            </div>
+        </div>
+
+        <!-- 2. 게임 1 – 기억력 카드 뒤집기 -->
+        <div id="screen-game1" class="screen">
+            <div class="game-header">
+                <span>카드 뒤집기</span>
+                <span id="g1-timer">시간: 0초</span>
+                <span id="g1-tries">시도: 0회</span>
+            </div>
+            <div id="g1-intro" style="margin: 40px 0;">
+                <h2 style="font-size: 1.8rem; margin-bottom: 15px; color: var(--accent-yellow);">과일 짝을 모두 찾아주세요!</h2>
+                <p class="subtitle">같은 그림의 과일 카드 2장을 연속으로 뒤집어 짝을 맞추는 게임입니다.</p>
+                <button class="btn" onclick="startMemoryGame()">게임 시작하기</button>
+            </div>
+            <div id="g1-board-area" style="display: none;">
+                <div class="memory-grid" id="memoryGrid"></div>
+            </div>
+        </div>
+
+        <!-- 3. 게임 2 – 번개 순발력 테스트 -->
+        <div id="screen-game2" class="screen">
+            <div class="game-header">
+                <span>번개 순발력 테스트</span>
+                <span id="g2-round">회차: 1 / 3</span>
+            </div>
+            <div id="g2-intro" style="margin: 40px 0;">
+                <h2 style="font-size: 1.8rem; margin-bottom: 15px; color: var(--accent-yellow);">초록색으로 바뀌면 누르세요!</h2>
+                <p class="subtitle">빨간 대기 화면에서 초록색으로 변하는 순간 가장 빠르게 버튼을 누르는 테스트입니다. (총 3회 진행)</p>
+                <button class="btn" onclick="startReflexGame()">테스트 시작하기</button>
+            </div>
+            <div id="g2-play-area" style="display: none;">
+                <div class="reflex-box" id="reflexBox" onclick="handleReflexClick()">
+                    <h2 id="reflexMsg">준비...</h2>
+                    <p id="reflexSub" style="font-size: 1.1rem; color: #cbd5e1;">초록색으로 변하면 터치하세요!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 게임 3 – 다른 그림 찾기 -->
+        <div id="screen-game3" class="screen">
+            <div class="game-header">
+                <span>다른 그림 찾기</span>
+                <span id="g3-round">문제: 1 / 5</span>
+            </div>
+            <div id="g3-intro" style="margin: 40px 0;">
+                <h2 style="font-size: 1.8rem; margin-bottom: 15px; color: var(--accent-yellow);">하나만 다른 그림을 찾으세요!</h2>
+                <p class="subtitle">여러 이모지 중에서 모양이 다른 하나를 빠르게 찾아 터치하는 게임입니다. (총 5문제)</p>
+                <button class="btn" onclick="startFindGame()">도전 시작하기</button>
+            </div>
+            <div id="g3-play-area" style="display: none;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="findProgressBar"></div>
+                </div>
+                <div class="find-grid" id="findGrid"></div>
+            </div>
+        </div>
+
+        <!-- 5. 결과 화면 -->
+        <div id="screen-result" class="screen">
+            <div class="result-trophy" id="resultTrophy">🏆</div>
+            <h1 id="resultTitle">도전 완료!</h1>
+            <div class="total-score-badge" id="totalScoreText">총점: 0점 / 300점</div>
+
+            <!-- 시각적 점수 그래프 -->
+            <div class="score-graph-container">
+                <div class="graph-row">
+                    <div class="graph-label">
+                        <span>🃏 기억력 카드 뒤집기</span>
+                        <span id="score1-text">0 / 100점</span>
+                    </div>
+                    <div class="graph-bar-bg"><div class="graph-bar-fill" id="bar1"></div></div>
+                </div>
+                <div class="graph-row">
+                    <div class="graph-label">
+                        <span>⚡ 번개 순발력 테스트</span>
+                        <span id="score2-text">0 / 100점</span>
+                    </div>
+                    <div class="graph-bar-bg"><div class="graph-bar-fill" id="bar2"></div></div>
+                </div>
+                <div class="graph-row" style="margin-bottom: 0;">
+                    <div class="graph-label">
+                        <span>🔍 다른 그림 찾기</span>
+                        <span id="score3-text">0 / 100점</span>
+                    </div>
+                    <div class="graph-bar-bg"><div class="graph-bar-fill" id="bar3"></div></div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="saveScoreAndRestart()">다시 도전하기</button>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-secondary" style="font-size: 1.1rem; padding: 12px 24px; min-width: auto; min-height: 44px;" onclick="showRankingScreen()">🏆 순위표 보기</button>
+            </div>
+            <div class="disclaimer">※ 본 점수는 두뇌 활성화와 재미를 위한 게임 점수입니다.</div>
+        </div>
+
+        <!-- 6. 순위표 화면 -->
+        <div id="screen-ranking" class="screen">
+            <h1>🏆 명예의 전당</h1>
+            <div class="subtitle">도전! 두뇌왕 최고 기록 순위</div>
+
+            <table class="ranking-table" id="rankingTable">
+                <thead>
+                    <tr>
+                        <th>순위</th>
+                        <th>이름</th>
+                        <th>총점</th>
+                        <th>날짜</th>
+                    </tr>
+                </thead>
+                <tbody id="rankingBody">
+                    <!-- 동적 생성 -->
+                </tbody>
+            </table>
+
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn" style="min-width: 160px; min-height: 50px; font-size: 1.2rem;" onclick="showScreen('screen-start')">홈으로 이동</button>
+                <button class="btn btn-secondary" style="min-width: 160px; min-height: 50px; font-size: 1.2rem; background: linear-gradient(135deg, #dc2626, #991b1b); box-shadow: 0 6px 0 #7f1d1d;" onclick="clearRanking()">기록 초기화</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 전역 사운드 및 게임 상태 변수
+        let soundEnabled = true;
+        let playerName = "";
+        let scoreG1 = 0, scoreG2 = 0, scoreG3 = 0;
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById("audioToggleBtn");
+            btn.innerText = soundEnabled ? "🔊 효과음: 켜짐" : "muted 효과음: 꺼짐";
+        }
+
+        // Web Audio API 효과음 생성기
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'match') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.1);
+                    osc.frequency.setValueAtTime(659.25, now + 0.2);
+                    osc.frequency.setValueAtTime(880, now + 0.3);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
+                    osc.start(now);
+                    osc.stop(now + 0.6);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.setValueAtTime(120, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch (e) {
+                console.log("Audio Context error:", e);
+            }
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startGameSequence() {
+            playSound('click');
+            const nameInput = document.getElementById("playerName").value.trim();
+            playerName = nameInput !== "" ? nameInput : "열정 도전자";
+            
+            // 첫 번째 게임 (카드 뒤집기) 시작 화면으로 이동
+            showScreen('screen-game1');
+            document.getElementById("g1-intro").style.display = "block";
+            document.getElementById("g1-board-area").style.display = "none";
+        }
+
+        /* --- 게임 1: 기억력 카드 뒤집기 로직 --- */
+        let g1TimerInterval = null, g1Seconds = 0, g1Tries = 0, g1MatchedPairs = 0;
+        const fruits = ['🍎', '🍌', '🍇', '🍊', '🍓', '🍉'];
+
+        function startMemoryGame() {
+            playSound('click');
+            document.getElementById("g1-intro").style.display = "none";
+            document.getElementById("g1-board-area").style.display = "block";
+
+            g1Seconds = 0; g1Tries = 0; g1MatchedPairs = 0;
+            document.getElementById("g1-timer").innerText = `시간: 0초`;
+            document.getElementById("g1-tries").innerText = `시도: 0회`;
+
+            if (g1TimerInterval) clearInterval(g1TimerInterval);
+            g1TimerInterval = setInterval(() => {
+                g1Seconds++;
+                document.getElementById("g1-timer").innerText = `시간: ${g1Seconds}초`;
+            }, 1000);
+
+            let deck = [...fruits, ...fruits];
+            deck.sort(() => Math.random() - 0.5);
+
+            const grid = document.getElementById("memoryGrid");
+            grid.innerHTML = "";
+
+            deck.forEach((emoji) => {
+                const card = document.createElement("div");
+                card.className = "memory-card";
+                card.dataset.emoji = emoji;
+                card.innerText = "❓";
+                card.onclick = () => flipCard(card);
+                grid.appendChild(card);
+            });
+        }
+
+        let firstCard = null, lockBoard = false;
+        function flipCard(card) {
+            if (lockBoard || card.classList.contains("flipped") || card.classList.contains("matched")) return;
+            playSound('click');
+            card.classList.add("flipped");
+            card.innerText = card.dataset.emoji;
+
+            if (!firstCard) {
+                firstCard = card;
+                return;
+            }
+
+            g1Tries++;
+            document.getElementById("g1-tries").innerText = `시도: ${g1Tries}회`;
+            let secondCard = card;
+
+            if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+                playSound('match');
+                firstCard.classList.add("matched");
+                secondCard.classList.add("matched");
+                firstCard = null;
+                g1MatchedPairs++;
+
+                if (g1MatchedPairs === 6) {
+                    clearInterval(g1TimerInterval);
+                    // 점수 계산: 기본 100점 - (시간*1) - (추가 시도*2), 최소 40점
+                    let score = 100 - (g1Seconds * 1) - ((g1Tries - 6) * 3);
+                    scoreG1 = Math.max(40, Math.min(100, score));
+                    
+                    setTimeout(() => {
+                        alert(`🎉 카드 뒤집기 성공! 점수: ${scoreG1}점`);
+                        initReflexGameScreen();
+                    }, 400);
+                }
+            } else {
+                lockBoard = true;
+                setTimeout(() => {
+                    playSound('wrong');
+                    firstCard.classList.remove("flipped");
+                    firstCard.innerText = "❓";
+                    secondCard.classList.remove("flipped");
+                    secondCard.innerText = "❓";
+                    firstCard = null;
+                    lockBoard = false;
+                }, 900);
+            }
+        }
+
+        /* --- 게임 2: 번개 순발력 테스트 로직 --- */
+        let g2RoundCount = 1;
+        let reactionTimes = [];
+        let reflexTimeout = null, startTime = 0, waitingForGreen = false, canClick = false;
+
+        function initReflexGameScreen() {
+            showScreen('screen-game2');
+            document.getElementById("g2-intro").style.display = "block";
+            document.getElementById("g2-play-area").style.display = "none";
+            g2RoundCount = 1;
+            reactionTimes = [];
+        }
+
+        function startReflexGame() {
+            playSound('click');
+            document.getElementById("g2-intro").style.display = "none";
+            document.getElementById("g2-play-area").style.display = "block";
+            runReflexRound();
+        }
+
+        function runReflexRound() {
+            document.getElementById("g2-round").innerText = `회차: ${g2RoundCount} / 3`;
+            const box = document.getElementById("reflexBox");
+            const msg = document.getElementById("reflexMsg");
+            const sub = document.getElementById("reflexSub");
+
+            box.className = "reflex-box ready";
+            msg.innerText = "빨간불... 기다리세요!";
+            sub.innerText = "초록색으로 바뀌면 터치하세요";
+            waitingForGreen = true;
+            canClick = false;
+
+            let randomDelay = Math.random() * 3000 + 2000; // 2~5초 사이
+            reflexTimeout = setTimeout(() => {
+                box.className = "reflex-box go";
+                msg.innerText = "지금 누르세요! ⚡";
+                sub.innerText = "화면을 빠르게 터치하세요!";
+                waitingForGreen = false;
+                canClick = true;
+                startTime = performance.now();
+            }, randomDelay);
+        }
+
+        function handleReflexClick() {
+            if (waitingForGreen) {
+                // 반칙! 너무 일찍 누름
+                clearTimeout(reflexTimeout);
+                playSound('wrong');
+                alert("⚠️ 너무 빨리 눌렀습니다! (반칙) 해당 회차를 다시 시작합니다.");
+                runReflexRound();
+                return;
+            }
+
+            if (canClick) {
+                canClick = false;
+                let endTime = performance.now();
+                let rt = Math.round(endTime - startTime);
+                reactionTimes.push(rt);
+                playSound('success');
+                
+                alert(`⏱️ 반응 속도: ${rt} ms`);
+
+                if (g2RoundCount < 3) {
+                    g2RoundCount++;
+                    runReflexRound();
+                } else {
+                    // 3회 완료 평균 산출
+                    let avgRt = Math.round(reactionTimes.reduce((a,b)=>a+b, 0) / 3);
+                    // 점수 환산: 200ms 이하 100점, 600ms 이상 40점
+                    let score = Math.round(100 - ((avgRt - 200) / 4));
+                    scoreG2 = Math.max(40, Math.min(100, score));
+
+                    setTimeout(() => {
+                        alert(`⚡ 순발력 테스트 완료! 평균 속도: ${avgRt}ms (점수: ${scoreG2}점)`);
+                        initFindGameScreen();
+                    }, 300);
+                }
+            }
+        }
+
+        /* --- 게임 3: 다른 그림 찾기 로직 --- */
+        let g3Round = 1, g3TimerInterval = null, g3TimeLeft = 15;
+        const findEmojiPairs = [
+            { normal: '🐶', odd: '🐱' },
+            { normal: '🍎', odd: '🍅' },
+            { normal: '🚗', odd: '🚕' },
+            { normal: '⚽', odd: '🏀' },
+            { normal: '⭐', odd: '🌟' }
+        ];
+        let g3CorrectCount = 0;
+
+        function initFindGameScreen() {
+            showScreen('screen-game3');
+            document.getElementById("g3-intro").style.display = "block";
+            document.getElementById("g3-play-area").style.display = "none";
+            g3Round = 1;
+            g3CorrectCount = 0;
+        }
+
+        function startFindGame() {
+            playSound('click');
+            document.getElementById("g3-intro").style.display = "none";
+            document.getElementById("g3-play-area").style.display = "block";
+            loadFindPuzzle();
+        }
+
+        function loadFindPuzzle() {
+            if (g3Round > 5) {
+                if (g3TimerInterval) clearInterval(g3TimerInterval);
+                // 점수 계산
+                scoreG3 = Math.round((g3CorrectCount / 5) * 100);
+                setTimeout(showResultScreen, 400);
+                return;
+            }
+
+            document.getElementById("g3-round").innerText = `문제: ${g3Round} / 5`;
+            
+            // 난이도에 따른 그리드 크기 변경 (3x3=9, 4x4=16, 5x5=25)
+            let gridSize = g3Round <= 2 ? 3 : (g3Round <= 4 ? 4 : 5);
+            let totalCells = gridSize * gridSize;
+
+            const grid = document.getElementById("findGrid");
+            grid.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            grid.innerHTML = "";
+
+            let pair = findEmojiPairs[g3Round - 1];
+            let oddIndex = Math.floor(Math.random() * totalCells);
+
+            for (let i = 0; i < totalCells; i++) {
+                const item = document.createElement("div");
+                item.className = "find-item";
+                item.innerText = (i === oddIndex) ? pair.odd : pair.normal;
+                item.onclick = () => {
+                    if (i === oddIndex) {
+                        // 정답
+                        playSound('match');
+                        g3CorrectCount++;
+                        if (g3TimerInterval) clearInterval(g3TimerInterval);
+                        g3Round++;
+                        setTimeout(loadFindPuzzle, 300);
+                    } else {
+                        // 오답
+                        playSound('wrong');
+                        item.style.transform = "scale(0.8)";
+                        setTimeout(() => item.style.transform = "scale(1)", 200);
+                    }
+                };
+                grid.appendChild(item);
+            }
+
+            // 타이머바 시작
+            g3TimeLeft = 15;
+            const bar = document.getElementById("findProgressBar");
+            bar.style.transition = "none";
+            bar.style.width = "100%";
+            setTimeout(() => {
+                bar.style.transition = "width 15s linear";
+                bar.style.width = "0%";
+            }, 50);
+
+            if (g3TimerInterval) clearInterval(g3TimerInterval);
+            g3TimerInterval = setInterval(() => {
+                g3TimeLeft--;
+                if (g3TimeLeft <= 0) {
+                    clearInterval(g3TimerInterval);
+                    playSound('wrong');
+                    alert("⏰ 시간 초과! 다음 문제로 넘어갑니다.");
+                    g3Round++;
+                    loadFindPuzzle();
+                }
+            }, 1000);
+        }
+
+        /* --- 결과 화면 및 애니메이션 --- */
+        function showResultScreen() {
+            showScreen('screen-result');
+            if (g3TimerInterval) clearInterval(g3TimerInterval);
+
+            let totalScore = scoreG1 + scoreG2 + scoreG3;
+            let avgScore = Math.round(totalScore / 3);
+
+            let title = "도전왕 🔥";
+            let trophy = "🏅";
+            if (avgScore >= 90) {
+                title = "두뇌왕 👑";
+                trophy = "🏆";
+            } else if (avgScore >= 70) {
+                title = "집중력 달인 🎯";
+                trophy = "🥈";
+            }
+
+            document.getElementById("resultTrophy").innerText = trophy;
+            document.getElementById("resultTitle").innerText = `${playerName}님 - ${title}`;
+            document.getElementById("totalScoreText").innerText = `총점: ${totalScore}점 / 300점 (평균 ${avgScore}점)`;
+
+            // 점수 그래프 반영
+            document.getElementById("score1-text").innerText = `${scoreG1} / 100점`;
+            document.getElementById("score2-text").innerText = `${scoreG2} / 100점`;
+            document.getElementById("score3-text").innerText = `${scoreG3} / 100점`;
+
+            setTimeout(() => {
+                document.getElementById("bar1").style.width = `${scoreG1}%`;
+                document.getElementById("bar2").style.width = `${scoreG2}%`;
+                document.getElementById("bar3").style.width = `${scoreG3}%`;
+            }, 200);
+
+            // 색종이 폭죽 효과
+            try {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            } catch (e) {
+                console.log("Confetti error:", e);
+            }
+
+            // localStorage 저장
+            saveRecordToStorage(playerName, totalScore);
+        }
+
+        /* --- 순위표 (localStorage) 로직 --- */
+        function saveRecordToStorage(name, score) {
+            let records = JSON.parse(localStorage.getItem("brainKingRecords") || "[]");
+            let today = new Date().toLocaleDateString();
+            records.push({ name: name, score: score, date: today });
+            records.sort((a, b) => b.score - a.score);
+            records = records.slice(0, 10); // 상위 10개만 유지
+            localStorage.setItem("brainKingRecords", JSON.stringify(records));
+        }
+
+        function showRankingScreen() {
+            playSound('click');
+            showScreen('screen-ranking');
+            let records = JSON.parse(localStorage.getItem("brainKingRecords") || "[]");
+            let tbody = document.getElementById("rankingBody");
+            tbody.innerHTML = "";
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="padding: 20px; color: #94a3b8;">아직 저장된 기록이 없습니다.</td></tr>`;
+                return;
+            }
+
+            records.forEach((rec, idx) => {
+                let medal = idx === 0 ? "🥇" : (idx === 1 ? "🥈" : (idx === 2 ? "🥉" : `${idx + 1}등`));
+                let tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${medal}</td>
+                    <td><b>${rec.name}</b></td>
+                    <td style="color: var(--accent-yellow);">${rec.score}점</td>
+                    <td style="font-size: 0.9rem; color: #94a3b8;">${rec.date}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function clearRanking() {
+            if (confirm("정말로 모든 명예의 전당 기록을 삭제하시겠습니까?")) {
+                localStorage.removeItem("brainKingRecords");
+                showRankingScreen();
+                playSound('click');
+            }
+        }
+
+        function saveScoreAndRestart() {
+            playSound('click');
+            showScreen('screen-start');
+            document.getElementById("playerName").value = "";
+        }
+    </script>
+</body>
+</html>
